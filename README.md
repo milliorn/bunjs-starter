@@ -49,14 +49,14 @@ Run `bun init` to scaffold a new project. It's an interactive tool; for this tut
 bun init helps you get started with a minimal project and tries to guess sensible defaults. Press ^C anytime to quit
 
 package name (bun-starter):
-entry point (index.ts):
+entry point (server.ts):
 
 Done! A package.json file was saved in the current directory.
- + index.ts
+ + server.ts
  + tsconfig.json (for editor auto-complete)
 
 To get started, run:
-  bun run index.ts
+  bun run server.ts
 ```
 
 ## Run a file
@@ -66,7 +66,7 @@ See [Run a script](https://bun.sh/docs/quickstart#run-a-script) for more details
 In your cli in the root of your project run:
 
 ```bash
-bun run index.ts
+bun run server.ts
 ```
 
 Now, open `package.json` in your editor. You can add this to your scripts:
@@ -74,7 +74,7 @@ Now, open `package.json` in your editor. You can add this to your scripts:
 ```json
 {
   "scripts": {
-    "start": "bun run index.ts"
+    "start": "bun run server.ts"
   }
 }
 ```
@@ -85,7 +85,7 @@ Then run it with bun run start.
 bun run start
 ```
 
-Now, open `index.ts` in your editor and paste the following code:
+Now, open `server.ts` in your editor and paste the following code:
 
 ```ts
 console.log("Hello via Bun!");
@@ -109,7 +109,7 @@ See [Watch mode](https://bun.sh/docs/quickstart#watch-mode) for more details.
 In your cli in the root of your project run:
 
 ```bash
-bun run --watch index.ts
+bun run --watch server.ts
 ```
 
 ## Hot Mode
@@ -119,7 +119,7 @@ See [Hot Mode](https://bun.sh/docs/quickstart#hot-mode) for more details.
 Use `bun --hot` to enable hot reloading when executing code with Bun.
 
 ```bash
-bun run --hot index.ts
+bun run --hot server.ts
 ```
 
 ## Environment variables
@@ -138,7 +138,7 @@ Add the following to your `.env` file:
 PORT=3000
 ```
 
-Now, open `index.ts` in your editor and replace the port with the following:
+Now, open `server.ts` in your editor and replace the port with the following:
 
 ```ts
 port: process.env.PORT || 3001;
@@ -284,3 +284,34 @@ You should see:
   1 passing (1ms)
 ```
 
+## Bundler
+
+See [Bundler](https://bun.sh/docs/bundler) for more details.
+
+Bun.js comes with a built-in bundler. To bundle your code, create a file called `index.ts` or whatever you want it to be in `src` folder of your project and add the following text:
+
+```ts
+import axios from "axios";
+
+async function fetchUser(user: string) {
+  try {
+    const response = await axios.get(`https://api.github.com/users/${user}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    throw error;
+  }
+}
+
+fetchUser("milliorn")
+  .then((data) => console.log("User data:", data))
+  .catch((error) => console.error("Error:", error));
+```
+
+Now you can bundle the code with:
+
+```bash
+bun build src/index.ts --outfile dist/bundle.js
+```
+
+You should see a new file called `bundle.js` in the `dist` folder of your project with the bundled code.

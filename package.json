@@ -1,17 +1,20 @@
 {
   "name": "bun-starter",
-  "module": "index.ts",
+  "module": "server.ts",
   "type": "module",
   "scripts": {
-    "dev": "bun --hot --watch index.ts",
-    "hot": "bun --hot index.ts",
-    "start": "bun run index.ts",
-    "watch": "bun --watch index.ts"
+    "dev": "bun --hot --watch server.ts",
+    "hot": "bun --hot server.ts",
+    "start": "bun run server.ts",
+    "watch": "bun --watch server.ts"
   },
   "devDependencies": {
     "bun-types": "latest"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "axios": "^1.5.0"
   }
 }
