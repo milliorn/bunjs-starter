@@ -221,6 +221,33 @@ bunx cowsay "hello"
 
 See [File I/O](https://bun.sh/docs/api/file-io) for more details.
 
-```ts
+Make a new file called `writeFile.ts` or whatever you want it to be in the root of your project and add the following text:
 
+```ts
+const dummyData = "Hello World!";
+
+await Bun.write("writeFile.txt", dummyData);
+```
+
+If you don't use `writeFile.ts` as the name of the file, make sure to change the name in the parameter of `Bun.write()`.
+
+Now you can run the code with:
+
+```bash
+bun run writeFile.ts
+```
+
+You should see a new file called `writeFile.txt` in the root of your project with the text "Hello World!".
+
+To read the file, make a new file called `readFile.ts` or whatever you want it to be in the root of your project and add the following text:
+
+```ts
+const readFlie = Bun.file("writeFile.txt");
+console.log(await readFlie.text());
+```
+
+```bash
+bun-starter$ bun run readFile.ts
+[3.24ms] ".env"
+Hello World!
 ```
