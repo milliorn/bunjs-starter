@@ -251,3 +251,36 @@ bun-starter$ bun run readFile.ts
 [3.24ms] ".env"
 Hello World!
 ```
+
+## bun test
+
+See [bun test](https://bun.sh/docs/cli/test) for more details.
+
+Bun.js comes with a built-in test runner. To run tests, create a file called `index.test.ts` or whatever you want it to be in the root of your project and add the following text:
+
+```ts
+import { describe, expect, test, beforeAll } from "bun:test";
+
+describe("math", () => {
+  test("logic", () => {
+    expect(1).toBe(1);
+  });
+});
+```
+
+Now you can run the code with:
+
+```bash
+bun test
+```
+
+You should see:
+
+```bash
+
+  math
+    ✓ logic
+
+  1 passing (1ms)
+```
+
