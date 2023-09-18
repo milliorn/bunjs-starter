@@ -1,0 +1,17 @@
+{
+  "name": "bun-starter",
+  "module": "index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "bun --hot --watch index.ts",
+    "hot": "bun --hot index.ts",
+    "start": "bun run index.ts",
+    "watch": "bun --watch index.ts"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
