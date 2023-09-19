@@ -315,3 +315,33 @@ bun build src/index.ts --outfile dist/bundle.js
 ```
 
 You should see a new file called `bundle.js` in the `dist` folder of your project with the bundled code.
+
+## Macros
+
+See [Macros](https://bun.sh/docs/bundler/macros) for more details.
+
+Macros are a mechanism for running JavaScript functions at bundle-time. The value returned from these functions are directly inlined into your bundle.
+
+Create a file called `random.ts` or whatever you want it to be in `src` folder of your project and add the following text:
+
+```ts
+export function random() {
+  return Math.random();
+}
+```
+
+Now you can use the macro in `cli.tsx`:
+
+```ts
+import { random } from './random.ts' with { type: 'macro' };
+
+console.log(`Your random number is ${random()}`);
+```
+
+Now you can bundle the code with:
+
+```bash
+bun build src/cli.tsx
+```
+
+At the time of this writing TypeScript does not support macros as it will throw linter errors. It will work.
