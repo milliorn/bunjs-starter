@@ -2,6 +2,28 @@
 
 This is a starter repo for Bun.js, a modern web framework for Node.js. Bun.js is a JavaScript runtime, bundler, toolkit. It is designed to be a simple, fast, and easy to use tool for JavaScript developers.
 
+# Table of Contents
+
+1. [Introduction](#introduction)
+2. [Bun.js Website](#bunjs-website)
+3. [Install Bun.js](#install-bunjs)
+4. [Getting Started](#getting-started)
+   - [Quickstart](#quickstart)
+   - [Run a File](#run-a-file)
+5. [Running Modes and Environment Configuration](#running-modes-and-environment-configuration)
+   - [Watch Mode](#watch-mode)
+   - [Hot Mode](#hot-mode)
+   - [Environment Variables](#environment-variables)
+6. [Working with Routes and File I/O](#working-with-routes-and-file-io)
+   - [Routes](#routes)
+   - [File I/O](#file-io)
+7. [Bun X](#bun-x)
+8. [Examples](#examples)
+9. [Testing and Bundling](#testing-and-bundling)
+   - [Bun Test](#bun-test)
+   - [Bundler](#bundler)
+10. [Macros](#macros)
+
 ## Bun.js Website
 
 https://bun.sh/
