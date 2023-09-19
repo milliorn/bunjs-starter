@@ -1,6 +1,6 @@
 # bun-starter
 
-This is a starter repo for Bun.js, a modern web framework for Node.js. Bun.js is a JavaScript runtime, bundler, toolkit. It is designed to be a simple, fast, and easy to use tool for JavaScript developers.
+This is a starter repo for Bun.js is a JavaScript runtime, bundler, toolkit.   It is designed to be a simple, fast, and easy to use tool for JavaScript developers.
 
 # Table of Contents
 
