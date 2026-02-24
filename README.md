@@ -80,7 +80,6 @@ bun add -d bun-types
 To run scripts defined in `package.json` use `bun run <script>` (for example
 `bun run start`) and use `bun test` to run the built-in test runner.
 
-
 ## Quickstart
 
 See [Quickstart](https://bun.sh/docs/quickstart) for more details.
