@@ -214,7 +214,6 @@ bunx cowsay "hello"
 
 See [File I/O](https://bun.sh/docs/api/file-io) for more details.
 
-
 Make a new file called `writeFile.ts` (the included `writeFile.ts` writes to
 `scratchFile.txt`) or edit it to write whichever filename you prefer. The
 included example writes the dummy data like this:
