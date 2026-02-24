@@ -147,43 +147,15 @@ bun run --hot server.ts
 
 See [Environment variables](https://bun.sh/docs/quickstart#environment-variables) for more details.
 
-Bun uses the dotenv package to manage environment variables. Create a `.env` file in the root of your project:
+Bun does not automatically load a `.env` file. If you want to store local
+environment variables in a `.env` file, create it in the project root and
+load it with your preferred loader, or export variables in your shell. In Bun
+you can access environment variables with `Bun.env` or `process.env`.
 
-```bash
-touch .env
-```
-
-Add the following to your `.env` file:
-
-```bash
-PORT=3000
-```
-
-Now, open `server.ts` in your editor and replace the port with the following:
+To use an environment variable for the server port, you can read it like this:
 
 ```ts
-port: process.env.PORT || 3001;
-```
-
-Should look like this:
-
-```ts
-console.log("Hello via Bun!");
-
-const server = Bun.serve({
-  port: process.env.PORT || 3001,
-  fetch(req) {
-    return new Response("Bun run!");
-  },
-});
-
-console.log(`Listening on http://localhost:${server.port}`);
-```
-
-Alternatively, you can use the `bun` instead of `process.env`:
-
-```ts
-port: Bun.env.PORT || 3001;
+port: process.env.PORT || Bun.env.PORT || 3001;
 ```
 
 ## Routes
@@ -242,15 +214,16 @@ bunx cowsay "hello"
 
 See [File I/O](https://bun.sh/docs/api/file-io) for more details.
 
-Make a new file called `writeFile.ts` or whatever you want it to be in the root of your project and add the following text:
+
+Make a new file called `writeFile.ts` (the included `writeFile.ts` writes to
+`scratchFile.txt`) or edit it to write whichever filename you prefer. The
+included example writes the dummy data like this:
 
 ```ts
 const dummyData = "Hello World!";
 
-await Bun.write("writeFile.txt", dummyData);
+await Bun.write("scratchFile.txt", dummyData);
 ```
-
-If you don't use `writeFile.ts` as the name of the file, make sure to change the name in the parameter of `Bun.write()`.
 
 Now you can run the code with:
 
@@ -258,9 +231,12 @@ Now you can run the code with:
 bun run writeFile.ts
 ```
 
-You should see a new file called `writeFile.txt` in the root of your project with the text "Hello World!".
+You should see a new file called `scratchFile.txt` in the root of your
+project with the text "Hello World!". The repository also includes a
+`writeFile.txt` fixture file containing the same text.
 
-To read the file, make a new file called `readFile.ts` or whatever you want it to be in the root of your project and add the following text:
+To read a file (the repository provides `readFile.ts` which reads
+`writeFile.txt`), create or edit `readFile.ts` with the following:
 
 ```ts
 const readFlie = Bun.file("writeFile.txt");
