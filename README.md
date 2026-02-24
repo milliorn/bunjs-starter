@@ -2,33 +2,30 @@
 
 [![CodeQL](https://github.com/milliorn/bunjs-starter/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/milliorn/bunjs-starter/actions/workflows/github-code-scanning/codeql)
 
-This is a starter repo for Bun.js is a JavaScript runtime, bundler, toolkit.   It is designed to be a simple, fast, and easy to use tool for JavaScript developers.
+This is a starter repo for Bun.js — a JavaScript runtime, bundler, and toolkit.
+It is designed to be simple, fast, and easy to use for JavaScript developers.
 
-# Table of Contents
+## Table of Contents
 
-1. [Introduction](#introduction)
-2. [Bun.js Website](#bunjs-website)
-3. [Install Bun.js](#install-bunjs)
-4. [Getting Started](#getting-started)
-   - [Quickstart](#quickstart)
-   - [Run a File](#run-a-file)
-5. [Running Modes and Environment Configuration](#running-modes-and-environment-configuration)
-   - [Watch Mode](#watch-mode)
+1. [Bun.js Website](#bunjs-website)
+2. [Install Bun.js](#install-bunjs)
+3. [Quickstart](#quickstart)
+4. [Run a file](#run-a-file)
+5. [Running modes and environment](#running-modes-and-environment)
+   - [Watch mode (docs)](https://bun.sh/docs/quickstart#watch-mode)
    - [Hot Mode](#hot-mode)
-   - [Environment Variables](#environment-variables)
-6. [Working with Routes and File I/O](#working-with-routes-and-file-io)
-   - [Routes](#routes)
-   - [File I/O](#file-io)
-7. [Bun X](#bun-x)
-8. [Examples](#examples)
-9. [Testing and Bundling](#testing-and-bundling)
-   - [Bun Test](#bun-test)
-   - [Bundler](#bundler)
-10. [Macros](#macros)
+   - [Environment variables](#environment-variables)
+6. [Routes](#routes)
+7. [File I/O](#file-io)
+8. [Bun X](#bun-x)
+9. [Bundler Examples](#bundler)
+10. [Bun Test](#bun-test)
+11. [Bundler](#bundler)
+12. [Macros](#macros)
 
 ## Bun.js Website
 
-https://bun.sh/
+<https://bun.sh/>
 
 ## Install Bun.js
 
@@ -126,7 +123,7 @@ console.log(`Listening on http://localhost:${server.port}`);
 
 Now, open `http://localhost:3000` in your browser. You should see "Bun!".
 
-## Watch mode
+## Running modes and environment
 
 See [Watch mode](https://bun.sh/docs/quickstart#watch-mode) for more details.
 
