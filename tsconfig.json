@@ -19,6 +19,6 @@
     "noImplicitReturns": true,
     "types": ["bun-types"]
   },
-  "include": ["src/**/*", "*.ts", "*.tsx"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+  "include": ["src/**/*", "__tests__/**/*", "*.ts", "*.tsx"],
+  "exclude": ["node_modules", "dist"]
 }

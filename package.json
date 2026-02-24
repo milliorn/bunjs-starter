@@ -7,7 +7,9 @@
     "hot": "bun --hot server.ts",
     "start": "bun run server.ts",
     "watch": "bun --watch server.ts",
-    "typecheck": "bun x tsc --noEmit"
+    "typecheck": "bun x tsc --noEmit",
+    "test": "bun test __tests__/**/*.test.ts",
+    "test:server": "bun test __tests__/server.test.ts"
   },
   "devDependencies": {
     "bun-types": "latest"
