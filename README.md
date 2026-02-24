@@ -60,6 +60,27 @@ and to confirm you can run:
 bun --version
 ```
 
+## Install project dependencies
+
+After Bun is installed and you're in the project root, install dependencies with:
+
+```bash
+bun install
+```
+
+This will install packages from `package.json` and generate `bun.lockb`.
+
+To add a dependency or dev-dependency use:
+
+```bash
+bun add axios
+bun add -d bun-types
+```
+
+To run scripts defined in `package.json` use `bun run <script>` (for example
+`bun run start`) and use `bun test` to run the built-in test runner.
+
+
 ## Quickstart
 
 See [Quickstart](https://bun.sh/docs/quickstart) for more details.
