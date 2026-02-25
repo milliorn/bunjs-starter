@@ -2,8 +2,8 @@
 
 [![CodeQL](https://github.com/milliorn/bunjs-starter/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/milliorn/bunjs-starter/actions/workflows/github-code-scanning/codeql)
 
-This is a starter repo for Bun.js — a JavaScript runtime, bundler, and toolkit.
-It is designed to be simple, fast, and easy to use for JavaScript developers.
+This is a starter repo for Bun.js, a JavaScript runtime, bundler, and toolkit.
+It is designed to be simple, fast, and easy to use for developers.
 
 ## Table of Contents
 
@@ -12,16 +12,62 @@ It is designed to be simple, fast, and easy to use for JavaScript developers.
 3. [Quickstart](#quickstart)
 4. [Run a file](#run-a-file)
 5. [Running modes and environment](#running-modes-and-environment)
-   - [Watch mode (docs)](https://bun.sh/docs/quickstart#watch-mode)
-   - [Hot Mode](#hot-mode)
-   - [Environment variables](#environment-variables)
-6. [Routes](#routes)
-7. [File I/O](#file-io)
-8. [Bun X](#bun-x)
-9. [Bundler Examples](#bundler)
-10. [Bun Test](#bun-test)
-11. [Bundler](#bundler)
-12. [Macros](#macros)
+
+- [Watch mode (docs)](https://bun.sh/docs/quickstart#watch-mode)
+- [Hot Mode](#hot-mode)
+- [Environment Variables](#environment-variables)
+
+1. [Routes](#routes)
+2. [File I/O](#file-io)
+3. [Bun X](#bun-x)
+4. [Bundler Examples](#bundler-examples)
+5. [Bun Test](#bun-test)
+6. [Bundler Examples](#bundler-examples)
+7. [CLI Usage](#cli-usage)
+
+## Project Structure & Tests
+
+Project structure:
+
+```bash
+src/
+  cli.tsx
+  index.ts
+  random.ts
+readFile.ts
+writeFile.ts
+server.ts
+__tests__/
+  cli.test.tsx
+  index.test.ts
+  readFile.test.ts
+  server.test.ts
+  writeFile.test.ts
+```
+
+Run all tests:
+
+```bash
+bun test
+```
+
+Test coverage includes CLI, file I/O, server routes, and utilities.
+
+## CLI Usage
+
+The CLI now supports argument parsing and help output. Example:
+
+```bash
+bun run src/cli.tsx 5 10
+```
+
+Prints a random number between 5 and 10. For help:
+
+```bash
+bun run src/cli.tsx --help
+```
+
+Shows usage instructions.
 
 ## Bun.js Website
 
@@ -234,39 +280,62 @@ bunx cowsay "hello"
 
 See [File I/O](https://bun.sh/docs/api/file-io) for more details.
 
-Make a new file called `writeFile.ts` (the included `writeFile.ts` writes to
-`scratchFile.txt`) or edit it to write whichever filename you prefer. The
-included example writes the dummy data like this:
+### writeFile.ts
 
 ```ts
-const dummyData = "Hello World!";
+export async function writeTextFile(filename: string, content: string): Promise<void> {
+  if (!filename) throw new Error("Filename is required.");
+  if (!content) throw new Error("Content is required.");
+  await Bun.write(filename, content);
+}
 
-await Bun.write("scratchFile.txt", dummyData);
+if (import.meta.main) {
+  const filename = process.argv[2] || "scratchFile.txt";
+  const content = process.argv[3] || "Hello World!";
+  writeTextFile(filename, content)
+    .then(() => console.log(`File "${filename}" written successfully.`))
+    .catch(error => {
+      console.error(error.message);
+      process.exit(1);
+    });
+}
 ```
 
-Now you can run the code with:
+Run:
 
 ```bash
-bun run writeFile.ts
+bun run writeFile.ts scratchFile.txt "Hello World!"
 ```
 
-You should see a new file called `scratchFile.txt` in the root of your
-project with the text "Hello World!". The repository also includes a
-`writeFile.txt` fixture file containing the same text.
-
-To read a file (the repository provides `readFile.ts` which reads
-`writeFile.txt`), create or edit `readFile.ts` with the following:
+### readFile.ts
 
 ```ts
-const readFlie = Bun.file("writeFile.txt");
-console.log(await readFlie.text());
+export async function readTextFile(filename: string): Promise<string> {
+  const readFile = Bun.file(filename);
+  if (!(await readFile.exists())) {
+    throw new Error(`File "${filename}" does not exist.`);
+  }
+  return await readFile.text();
+}
+
+if (import.meta.main) {
+  const filename = process.argv[2] || "writeFile.txt";
+  readTextFile(filename)
+    .then(text => console.log(text))
+    .catch(error => {
+      console.error(error.message);
+      process.exit(1);
+    });
+}
 ```
 
+Run:
+
 ```bash
-bun-starter$ bun run readFile.ts
-[3.24ms] ".env"
-Hello World!
+bun run readFile.ts writeFile.txt
 ```
+
+Both scripts now provide error handling and CLI usage.
 
 ## bun test
 
@@ -300,64 +369,56 @@ You should see:
   1 passing (1ms)
 ```
 
-## Bundler
+## Bundler Examples
 
 See [Bundler](https://bun.sh/docs/bundler) for more details.
 
-Bun.js comes with a built-in bundler. To bundle your code, create a file called `index.ts` or whatever you want it to be in `src` folder of your project and add the following text:
+Bun.js comes with a built-in bundler. To bundle your code, create a file called `index.ts` in the `src` folder and add:
 
 ```ts
-import axios from "axios";
-
-async function fetchUser(user: string) {
-  try {
-    const response = await axios.get(`https://api.github.com/users/${user}`);
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching user:", error);
-    throw error;
-  }
+export async function fetchUser(username: string): Promise<any> {
+  const res = await fetch(`https://api.github.com/users/${username}`);
+  if (!res.ok) throw new Error(`GitHub API error: ${res.status}`);
+  return await res.json();
 }
 
-fetchUser("milliorn")
-  .then((data) => console.log("User data:", data))
-  .catch((error) => console.error("Error:", error));
+async function main(args: string[] = process.argv.slice(2)) {
+  const username = args[0] || "milliorn";
+  const data = await fetchUser(username);
+  console.log("User data:", data);
+}
+
+if (require.main === module) {
+  main();
+}
 ```
 
-Now you can bundle the code with:
+Bundle with:
 
 ```bash
 bun build src/index.ts --outfile dist/bundle.js
 ```
 
-You should see a new file called `bundle.js` in the `dist` folder of your project with the bundled code.
+## Random Number Utility
 
-## Macros
-
-See [Macros](https://bun.sh/docs/bundler/macros) for more details.
-
-Macros are a mechanism for running JavaScript functions at bundle-time. The value returned from these functions are directly inlined into your bundle.
-
-Create a file called `random.ts` or whatever you want it to be in `src` folder of your project and add the following text:
+Create a file called `random.ts` in `src`:
 
 ```ts
-export function random() {
-  return Math.random();
+export function random(min: number = 0, max: number = 100): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 ```
 
-Now you can use the macro in `cli.tsx`:
+Use it in your CLI:
 
 ```ts
-import { random } from './random.ts' with { type: 'macro' };
+import { random } from './random.ts';
 
-console.log(`Your random number is ${random()}`);
+function main(args: string[] = process.argv.slice(2)) {
+  let min = Number(args[0]) || 0;
+  let max = Number(args[1]) || 100;
+  console.log(`Your random number is ${random(min, max)}`);
+}
+
+main(process.argv.slice(2));
 ```
-
-Now you can bundle the code with:
-
-```bash
-bun build src/cli.tsx
-```
-
-At the time of this writing TypeScript does not support macros as it will throw linter errors. It will work.
