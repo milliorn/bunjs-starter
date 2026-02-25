@@ -16,3 +16,12 @@ updates:
       - dependency-name: "*"
         update-types:
           - "version-update:semver-major"
+
+  - package-ecosystem: "bun"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
