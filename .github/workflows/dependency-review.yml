@@ -15,6 +15,10 @@ on:
       - "bun.lockb"
 
 # https://docs.github.com/en/enterprise-cloud@latest/code-security/supply-chain-security/understanding-your-software-supply-chain/using-the-dependency-submission-api
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
   # Required for comment-summary-in-pr to post results as a PR comment.
