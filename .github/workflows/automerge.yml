@@ -44,7 +44,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Approve and auto-merge minor and patch updates
-        if: ${{ steps.dependabot-metadata.outputs.update-type == 'version-update:semver-patch' || steps.dependabot-metadata.outputs.update-type == 'version-update:semver-minor' }}
+        if: >-
+          ${{
+            steps.dependabot-metadata.outputs.update-type == 'version-update:semver-patch' ||
+            steps.dependabot-metadata.outputs.update-type == 'version-update:semver-minor' ||
+            (steps.dependabot-metadata.outputs.update-type == 'version-update:semver-major' &&
+             steps.dependabot-metadata.outputs.package-ecosystem == 'github-actions')
+          }}
         run: |
           gh pr review "$PR_URL" --approve -b "Auto-approved: This pull request includes a **patch** or **minor** update."
           gh pr merge "$PR_URL" --squash --auto
@@ -53,7 +59,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Auto-close major updates
-        if: ${{ steps.dependabot-metadata.outputs.update-type == 'version-update:semver-major' }}
+        if: >-
+          ${{
+            steps.dependabot-metadata.outputs.update-type == 'version-update:semver-major' &&
+            steps.dependabot-metadata.outputs.package-ecosystem != 'github-actions'
+          }}
         run: |
           gh label create "dependabot-major-auto-closed" \
             --color "d73a4a" \
