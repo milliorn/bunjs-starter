@@ -15,6 +15,10 @@ on:
       - "bun.lockb"
 
 # https://docs.github.com/en/enterprise-cloud@latest/code-security/supply-chain-security/understanding-your-software-supply-chain/using-the-dependency-submission-api
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
   # Required for comment-summary-in-pr to post results as a PR comment.
@@ -32,11 +36,11 @@ jobs:
       # Check out the repository so the action can read the manifest files.
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
       # Scan changed dependency files and fail if any known vulnerability
       # at low severity or higher is introduced by this PR.
-      # retry-on-snapshot-warnings retries if GitHub's dependency graph hasn't
-      # indexed the commit yet, ensuring a complete scan before passing.
       # Commonly enabled options, see https://github.com/actions/dependency-review-action#configuration-options for all available options.
       - name: Dependency Review
         uses: actions/dependency-review-action@v4
