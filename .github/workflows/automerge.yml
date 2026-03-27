@@ -25,7 +25,7 @@ jobs:
 
       # Handle when update-type is null/empty
       - name: Handle updates with null update-type
-        if: ${{ steps.dependabot-metadata.outputs.update-type == '' || steps.dependabot-metadata.outputs.update-type == null }}
+        if: ${{ steps.dependabot-metadata.outputs.update-type == '' }}
         run: |
           if gh pr close "$PR_URL"; then
             gh label create "dependabot-update-type-null" \

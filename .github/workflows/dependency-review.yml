@@ -36,11 +36,11 @@ jobs:
       # Check out the repository so the action can read the manifest files.
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
       # Scan changed dependency files and fail if any known vulnerability
       # at low severity or higher is introduced by this PR.
-      # retry-on-snapshot-warnings retries if GitHub's dependency graph hasn't
-      # indexed the commit yet, ensuring a complete scan before passing.
       # Commonly enabled options, see https://github.com/actions/dependency-review-action#configuration-options for all available options.
       - name: Dependency Review
         uses: actions/dependency-review-action@v4
