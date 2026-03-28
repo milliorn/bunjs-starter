@@ -12,7 +12,7 @@ on:
 # squash merge isn't interrupted mid-flight.
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 # Minimum permissions needed:
 # - pull-requests: approve, comment, label, and close PRs
