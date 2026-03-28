@@ -48,12 +48,13 @@ jobs:
           gh pr review "$PR_URL" --approve -b "Auto-approved: **${{ steps.metadata.outputs.update-type }}** GitHub Actions update."
           gh pr merge "$PR_URL" --squash --auto
 
-      # 2. Patch or minor: allow.
+      # 2. Patch or minor: allow. Excludes github-actions since step 1 handles those.
       - name: Allow — patch or minor update
         if: >-
           ${{
-            steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
-            steps.metadata.outputs.update-type == 'version-update:semver-minor'
+            steps.metadata.outputs.package-ecosystem != 'github-actions' &&
+            (steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
+             steps.metadata.outputs.update-type == 'version-update:semver-minor')
           }}
         run: |
           gh pr review "$PR_URL" --approve -b "Auto-approved: **${{ steps.metadata.outputs.update-type }}** update."
