@@ -49,6 +49,7 @@ jobs:
           gh pr merge "$PR_URL" --squash --auto
 
       # 2. Patch or minor: allow. Excludes github-actions since step 1 handles those.
+      #    Major updates are filtered upstream by dependabot.yml.
       - name: Allow — patch or minor update
         if: >-
           ${{
@@ -60,25 +61,3 @@ jobs:
           gh pr review "$PR_URL" --approve -b "Auto-approved: **${{ steps.metadata.outputs.update-type }}** update."
           gh pr merge "$PR_URL" --squash --auto
 
-      # 3. Everything else: deny. Reports exactly what was received so it's easy
-      #    to diagnose why the PR was closed.
-      - name: Deny — not in allow-list
-        if: >-
-          ${{
-            steps.metadata.outputs.package-ecosystem != 'github-actions' &&
-            steps.metadata.outputs.update-type != 'version-update:semver-patch' &&
-            steps.metadata.outputs.update-type != 'version-update:semver-minor'
-          }}
-        run: |
-          gh label create "dependabot-auto-closed" \
-            --color "d73a4a" \
-            --description "Dependabot PR automatically closed (not in allow-list)" \
-            2>/dev/null || true
-
-          gh pr edit "$PR_URL" --add-label "dependabot-auto-closed" || true
-
-          if gh pr close "$PR_URL"; then
-            gh pr comment "$PR_URL" --body "Auto-closed: ecosystem \`${{ steps.metadata.outputs.package-ecosystem }}\` / update-type \`${{ steps.metadata.outputs.update-type }}\` is not in the allow-list."
-          else
-            gh pr comment "$PR_URL" --body "Tried to auto-close this PR (ecosystem \`${{ steps.metadata.outputs.package-ecosystem }}\` / update-type \`${{ steps.metadata.outputs.update-type }}\`) but \`gh pr close\` failed. Please close it manually."
-          fi
