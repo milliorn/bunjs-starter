@@ -39,24 +39,31 @@ jobs:
         id: metadata
         uses: dependabot/fetch-metadata@v3.0.0
 
-      # 1. GitHub Actions: always allow regardless of semver level.
-      #    --auto queues the merge so all required branch protection checks must
-      #    pass first (e.g. dependency-review) before the merge goes through.
-      - name: Allow — GitHub Actions update
-        if: ${{ steps.metadata.outputs.package-ecosystem == 'github-actions' }}
+      # Decide once: allow github-actions (any semver) or patch/minor updates;
+      # deny everything else. Major updates are filtered upstream by dependabot.yml,
+      # so deny is a safety net for anything unexpected that slips through.
+      - name: Decide
+        id: decision
         run: |
-          gh pr review "$PR_URL" --approve -b "Auto-approved: **${{ steps.metadata.outputs.update-type }}** GitHub Actions update."
+          ecosystem="${{ steps.metadata.outputs.package-ecosystem }}"
+          update_type="${{ steps.metadata.outputs.update-type }}"
+          if [[ "$ecosystem" == "github-actions" ]] || \
+             [[ "$update_type" == "version-update:semver-patch" ]] || \
+             [[ "$update_type" == "version-update:semver-minor" ]]; then
+            echo "action=allow" >> "$GITHUB_OUTPUT"
+          else
+            echo "action=deny" >> "$GITHUB_OUTPUT"
+          fi
+
+      # --auto queues the merge so all required branch protection checks must
+      # pass first (e.g. dependency-review) before the merge goes through.
+      - name: Allow — approve and merge
+        if: steps.decision.outputs.action == 'allow'
+        run: |
+          gh pr review "$PR_URL" --approve -b "Auto-approved: **${{ steps.metadata.outputs.update-type }}** ${{ steps.metadata.outputs.package-ecosystem }} update."
           gh pr merge "$PR_URL" --squash --auto
 
-      # 2. Patch or minor: allow. Excludes github-actions since step 1 handles those.
-      #    Major updates are filtered upstream by dependabot.yml.
-      - name: Allow — patch or minor update
-        if: >-
-          ${{
-            steps.metadata.outputs.package-ecosystem != 'github-actions' &&
-            (steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
-             steps.metadata.outputs.update-type == 'version-update:semver-minor')
-          }}
+      - name: Deny — unexpected update
+        if: steps.decision.outputs.action == 'deny'
         run: |
-          gh pr review "$PR_URL" --approve -b "Auto-approved: **${{ steps.metadata.outputs.update-type }}** update."
-          gh pr merge "$PR_URL" --squash --auto
+          gh pr close "$PR_URL" --comment "Auto-closed: ecosystem \`${{ steps.metadata.outputs.package-ecosystem }}\` / update-type \`${{ steps.metadata.outputs.update-type }}\` did not match any allow-list rule. Check dependabot.yml if this is unexpected."
