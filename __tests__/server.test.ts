@@ -50,7 +50,9 @@ describe("server routes", () => {
   it("GET /json returns JSON with correct content-type", async () => {
     const res = await fetch(`${BASE_URL}/json`);
     expect(res.status).toBe(200);
-    expect(res.headers.get("content-type")).toBe("application/json; charset=utf-8");
+    expect(res.headers.get("content-type")).toBe(
+      "application/json; charset=utf-8",
+    );
     const json = await res.json();
     expect(json).toEqual({ hello: "world" });
   });

@@ -6,7 +6,7 @@ export async function fetchUser(username: string): Promise<any> {
     }
     return await res.json();
   } catch (error) {
-    console.error('Error fetching user:', error);
+    console.error("Error fetching user:", error);
     throw error;
   }
 }
