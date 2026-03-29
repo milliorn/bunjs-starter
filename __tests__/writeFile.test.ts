@@ -23,10 +23,14 @@ describe("writeFile.ts", () => {
   });
 
   it("throws error if filename is missing", async () => {
-    await expect(writeTextFile("", "Sample")).rejects.toThrow("Filename is required");
+    await expect(writeTextFile("", "Sample")).rejects.toThrow(
+      "Filename is required",
+    );
   });
 
   it("throws error if content is missing", async () => {
-    await expect(writeTextFile(TEST_FILE, "")).rejects.toThrow("Content is required");
+    await expect(writeTextFile(TEST_FILE, "")).rejects.toThrow(
+      "Content is required",
+    );
   });
 });

@@ -283,7 +283,10 @@ See [File I/O](https://bun.sh/docs/api/file-io) for more details.
 ### writeFile.ts
 
 ```ts
-export async function writeTextFile(filename: string, content: string): Promise<void> {
+export async function writeTextFile(
+  filename: string,
+  content: string,
+): Promise<void> {
   if (!filename) throw new Error("Filename is required.");
   if (!content) throw new Error("Content is required.");
   await Bun.write(filename, content);
@@ -294,7 +297,7 @@ if (import.meta.main) {
   const content = process.argv[3] || "Hello World!";
   writeTextFile(filename, content)
     .then(() => console.log(`File "${filename}" written successfully.`))
-    .catch(error => {
+    .catch((error) => {
       console.error(error.message);
       process.exit(1);
     });
@@ -321,8 +324,8 @@ export async function readTextFile(filename: string): Promise<string> {
 if (import.meta.main) {
   const filename = process.argv[2] || "writeFile.txt";
   readTextFile(filename)
-    .then(text => console.log(text))
-    .catch(error => {
+    .then((text) => console.log(text))
+    .catch((error) => {
       console.error(error.message);
       process.exit(1);
     });
@@ -412,7 +415,7 @@ export function random(min: number = 0, max: number = 100): number {
 Use it in your CLI:
 
 ```ts
-import { random } from './random.ts';
+import { random } from "./random.ts";
 
 function main(args: string[] = process.argv.slice(2)) {
   let min = Number(args[0]) || 0;

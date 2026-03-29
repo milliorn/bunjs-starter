@@ -5,8 +5,12 @@ function captureOutput(fn: () => void): string {
   const originalLog = console.log;
   const originalError = console.error;
   let output = "";
-  console.log = (...args: any[]) => { output += args.join(" ") + "\n"; };
-  console.error = (...args: any[]) => { output += args.join(" ") + "\n"; };
+  console.log = (...args: any[]) => {
+    output += args.join(" ") + "\n";
+  };
+  console.error = (...args: any[]) => {
+    output += args.join(" ") + "\n";
+  };
   try {
     fn();
   } finally {
