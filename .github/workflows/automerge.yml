@@ -12,10 +12,10 @@ on:
 # squash merge isn't interrupted mid-flight.
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 # Minimum permissions needed:
-# - pull-requests: approve, comment, label, and close PRs
+# - pull-requests: approve and comment on PRs
 # - contents: enable auto-merge (writes to the merge queue)
 permissions:
   pull-requests: write
@@ -60,4 +60,3 @@ jobs:
         run: |
           gh pr review "$PR_URL" --approve -b "Auto-approved: **${{ steps.metadata.outputs.update-type }}** update."
           gh pr merge "$PR_URL" --squash --auto
-
