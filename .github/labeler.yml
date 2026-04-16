@@ -1,0 +1,37 @@
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.md"
+
+source:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "src/**"
+
+tests:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "__tests__/**"
+
+server:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "server.ts"
+
+configuration:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "tsconfig.json"
+          - "tsconfig.*.json"
+
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "package.json"
+          - "bun.lockb"
+          - ".github/dependabot.yml"
+
+github_actions:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/workflows/**"
