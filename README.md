@@ -1,6 +1,7 @@
 # bun-starter
 
 [![CodeQL](https://github.com/milliorn/bunjs-starter/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/milliorn/bunjs-starter/actions/workflows/github-code-scanning/codeql)
+[![Labeler](https://github.com/milliorn/bunjs-starter/actions/workflows/label.yml/badge.svg)](https://github.com/milliorn/bunjs-starter/actions/workflows/label.yml)
 
 This is a starter repo for Bun.js, a JavaScript runtime, bundler, and toolkit.
 It is designed to be simple, fast, and easy to use for developers.
