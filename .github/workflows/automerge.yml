@@ -58,10 +58,11 @@ jobs:
 
       # --auto queues the merge so all required branch protection checks must
       # pass first (e.g. dependency-review) before the merge goes through.
-      - name: Allow — approve and merge
+      # Note: GITHUB_TOKEN cannot approve PRs (GitHub security policy), so we
+      # skip approval and rely on branch protection checks via --auto.
+      - name: Allow — merge
         if: steps.decision.outputs.action == 'allow'
         run: |
-          gh pr review "$PR_URL" --approve -b "Auto-approved: **${{ steps.metadata.outputs.update-type }}** ${{ steps.metadata.outputs.package-ecosystem }} update."
           gh pr merge "$PR_URL" --squash --auto
 
       - name: Deny — unexpected update
