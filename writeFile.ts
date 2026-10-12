@@ -11,7 +11,7 @@ export async function writeTextFile(
 // CLI usage
 if (import.meta.main) {
   const filename = process.argv[2] || "scratchFile.txt";
-  const content = process.argv[3] || "Hellow World!";
+  const content = process.argv[3] || "Hello World!";
 
   writeTextFile(filename, content)
     .then(() => {
