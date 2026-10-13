@@ -32,4 +32,6 @@ async function main(args: string[] = process.argv.slice(2)) {
   }
 }
 
-main();
+if (import.meta.main) {
+  main();
+}
