@@ -19,7 +19,7 @@ export async function fetchUser(username: string): Promise<GitHubUser> {
     if (!res.ok) {
       throw new Error(`GitHub API error: ${res.status} ${res.statusText}`);
     }
-    return await res.json();
+    return (await res.json()) as GitHubUser;
   } catch (error) {
     console.error("Error fetching user:", error);
     throw error;

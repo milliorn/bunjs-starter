@@ -1,8 +1,23 @@
 import { afterEach, describe, expect, it } from "bun:test";
-import { fetchUser, main } from "../src/index.ts";
+import { fetchUser, main, type GitHubUser } from "../src/index.ts";
 import { captureOutput } from "./helpers/captureOutput.ts";
 
 const originalFetch = globalThis.fetch;
+
+const milliornUser: GitHubUser = {
+  login: "milliorn",
+  id: 1,
+  name: null,
+  company: null,
+  blog: "",
+  location: null,
+  email: null,
+  bio: null,
+  public_repos: 0,
+  followers: 0,
+  following: 0,
+  created_at: "2020-01-01T00:00:00Z",
+};
 
 afterEach(() => {
   globalThis.fetch = originalFetch;
@@ -20,10 +35,10 @@ function mockFetchOnce(response: Response) {
 describe("fetchUser", () => {
   it("returns parsed JSON on a successful response", async () => {
     mockFetchOnce(
-      new Response(JSON.stringify({ login: "milliorn" }), { status: 200 }),
+      new Response(JSON.stringify(milliornUser), { status: 200 }),
     );
     const user = await fetchUser("milliorn");
-    expect(user).toEqual({ login: "milliorn" });
+    expect(user).toEqual(milliornUser);
   });
 
   it("throws on a non-ok response", async () => {
