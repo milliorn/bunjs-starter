@@ -8,9 +8,13 @@ afterEach(() => {
   globalThis.fetch = originalFetch;
 });
 
+let lastFetchUrl: string | undefined;
+
 function mockFetchOnce(response: Response) {
-  globalThis.fetch = (async (..._args: Parameters<typeof fetch>) =>
-    response.clone()) as unknown as typeof fetch;
+  globalThis.fetch = (async (url: string) => {
+    lastFetchUrl = url;
+    return response.clone();
+  }) as unknown as typeof fetch;
 }
 
 describe("fetchUser", () => {
@@ -47,6 +51,7 @@ describe("main", () => {
       new Response(JSON.stringify({ login: "octocat" }), { status: 200 }),
     );
     const output = await captureOutput(() => main(["octocat"]));
+    expect(lastFetchUrl).toBe("https://api.github.com/users/octocat");
     expect(output).toMatch(/User data:/);
     expect(output).toMatch(/octocat/);
   });
