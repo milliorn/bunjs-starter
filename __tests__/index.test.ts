@@ -36,7 +36,8 @@ function captureOutput(fn: () => Promise<void> | void): Promise<string> | string
 }
 
 function mockFetchOnce(response: Response) {
-  globalThis.fetch = (() => Promise.resolve(response)) as typeof fetch;
+  globalThis.fetch = (() =>
+    Promise.resolve(response)) as unknown as typeof fetch;
 }
 
 describe("fetchUser", () => {
