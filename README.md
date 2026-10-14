@@ -379,10 +379,25 @@ See [Bundler](https://bun.sh/docs/bundler) for more details.
 Bun.js comes with a built-in bundler. To bundle your code, create a file called `index.ts` in the `src` folder and add:
 
 ```ts
-export async function fetchUser(username: string): Promise<any> {
+export interface GitHubUser {
+  login: string;
+  id: number;
+  name: string | null;
+  company: string | null;
+  blog: string;
+  location: string | null;
+  email: string | null;
+  bio: string | null;
+  public_repos: number;
+  followers: number;
+  following: number;
+  created_at: string;
+}
+
+export async function fetchUser(username: string): Promise<GitHubUser> {
   const res = await fetch(`https://api.github.com/users/${username}`);
   if (!res.ok) throw new Error(`GitHub API error: ${res.status}`);
-  return await res.json();
+  return (await res.json()) as GitHubUser;
 }
 
 async function main(args: string[] = process.argv.slice(2)) {
@@ -391,7 +406,7 @@ async function main(args: string[] = process.argv.slice(2)) {
   console.log("User data:", data);
 }
 
-if (require.main === module) {
+if (import.meta.main) {
   main();
 }
 ```

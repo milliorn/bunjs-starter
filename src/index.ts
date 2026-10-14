@@ -1,10 +1,25 @@
-export async function fetchUser(username: string): Promise<any> {
+export interface GitHubUser {
+  login: string;
+  id: number;
+  name: string | null;
+  company: string | null;
+  blog: string;
+  location: string | null;
+  email: string | null;
+  bio: string | null;
+  public_repos: number;
+  followers: number;
+  following: number;
+  created_at: string;
+}
+
+export async function fetchUser(username: string): Promise<GitHubUser> {
   try {
     const res = await fetch(`https://api.github.com/users/${username}`);
     if (!res.ok) {
       throw new Error(`GitHub API error: ${res.status} ${res.statusText}`);
     }
-    return await res.json();
+    return (await res.json()) as GitHubUser;
   } catch (error) {
     console.error("Error fetching user:", error);
     throw error;
