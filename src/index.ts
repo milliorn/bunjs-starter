@@ -18,7 +18,7 @@ function printHelp() {
   console.log("  username   GitHub username to fetch (default: milliorn)\n");
 }
 
-async function main(args: string[] = process.argv.slice(2)) {
+export async function main(args: string[] = process.argv.slice(2)) {
   if (args.includes("--help") || args.includes("-h")) {
     printHelp();
     return;
