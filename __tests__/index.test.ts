@@ -1,7 +1,6 @@
-/// <reference types="bun-types" />
-
 import { afterEach, describe, expect, it } from "bun:test";
 import { fetchUser, main } from "../src/index.ts";
+import { captureOutput } from "./helpers/captureOutput.ts";
 
 const originalFetch = globalThis.fetch;
 
@@ -9,34 +8,13 @@ afterEach(() => {
   globalThis.fetch = originalFetch;
 });
 
-function captureOutput(fn: () => Promise<void> | void): Promise<string> | string {
-  const originalLog = console.log;
-  const originalError = console.error;
-  let output = "";
-  const format = (args: any[]) =>
-    args
-      .map((arg) => (typeof arg === "string" ? arg : JSON.stringify(arg)))
-      .join(" ");
-  console.log = (...args: any[]) => {
-    output += format(args) + "\n";
-  };
-  console.error = (...args: any[]) => {
-    output += format(args) + "\n";
-  };
-  const restore = () => {
-    console.log = originalLog;
-    console.error = originalError;
-  };
-  const result = fn();
-  if (result instanceof Promise) {
-    return result.then(() => output).finally(restore);
-  }
-  restore();
-  return output;
-}
+let lastFetchUrl: string | undefined;
 
 function mockFetchOnce(response: Response) {
-  globalThis.fetch = (() => Promise.resolve(response)) as typeof fetch;
+  globalThis.fetch = (async (url: string) => {
+    lastFetchUrl = url;
+    return response.clone();
+  }) as unknown as typeof fetch;
 }
 
 describe("fetchUser", () => {
@@ -73,8 +51,19 @@ describe("main", () => {
       new Response(JSON.stringify({ login: "octocat" }), { status: 200 }),
     );
     const output = await captureOutput(() => main(["octocat"]));
+    expect(lastFetchUrl).toBe("https://api.github.com/users/octocat");
     expect(output).toMatch(/User data:/);
     expect(output).toMatch(/octocat/);
+  });
+
+  it("defaults to the milliorn username when no argument is given", async () => {
+    mockFetchOnce(
+      new Response(JSON.stringify({ login: "milliorn" }), { status: 200 }),
+    );
+    const output = await captureOutput(() => main([]));
+    expect(lastFetchUrl).toBe("https://api.github.com/users/milliorn");
+    expect(output).toMatch(/User data:/);
+    expect(output).toMatch(/milliorn/);
   });
 
   it("prints an error when the fetch fails", async () => {
