@@ -13,11 +13,15 @@ function captureOutput(fn: () => Promise<void> | void): Promise<string> | string
   const originalLog = console.log;
   const originalError = console.error;
   let output = "";
+  const format = (args: any[]) =>
+    args
+      .map((arg) => (typeof arg === "string" ? arg : JSON.stringify(arg)))
+      .join(" ");
   console.log = (...args: any[]) => {
-    output += args.join(" ") + "\n";
+    output += format(args) + "\n";
   };
   console.error = (...args: any[]) => {
-    output += args.join(" ") + "\n";
+    output += format(args) + "\n";
   };
   const restore = () => {
     console.log = originalLog;
