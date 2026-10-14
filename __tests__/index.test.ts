@@ -1,7 +1,6 @@
-/// <reference types="bun-types" />
-
 import { afterEach, describe, expect, it } from "bun:test";
 import { fetchUser, main } from "../src/index.ts";
+import { captureOutput } from "./helpers/captureOutput.ts";
 
 const originalFetch = globalThis.fetch;
 
@@ -9,35 +8,9 @@ afterEach(() => {
   globalThis.fetch = originalFetch;
 });
 
-function captureOutput(fn: () => Promise<void> | void): Promise<string> | string {
-  const originalLog = console.log;
-  const originalError = console.error;
-  let output = "";
-  const format = (args: any[]) =>
-    args
-      .map((arg) => (typeof arg === "string" ? arg : JSON.stringify(arg)))
-      .join(" ");
-  console.log = (...args: any[]) => {
-    output += format(args) + "\n";
-  };
-  console.error = (...args: any[]) => {
-    output += format(args) + "\n";
-  };
-  const restore = () => {
-    console.log = originalLog;
-    console.error = originalError;
-  };
-  const result = fn();
-  if (result instanceof Promise) {
-    return result.then(() => output).finally(restore);
-  }
-  restore();
-  return output;
-}
-
 function mockFetchOnce(response: Response) {
-  globalThis.fetch = (() =>
-    Promise.resolve(response)) as unknown as typeof fetch;
+  globalThis.fetch = (async (..._args: Parameters<typeof fetch>) =>
+    response.clone()) as unknown as typeof fetch;
 }
 
 describe("fetchUser", () => {
