@@ -4,20 +4,24 @@ import { captureOutput } from "./helpers/captureOutput.ts";
 
 const originalFetch = globalThis.fetch;
 
-const milliornUser: GitHubUser = {
-  login: "milliorn",
-  id: 1,
-  name: null,
-  company: null,
-  blog: "",
-  location: null,
-  email: null,
-  bio: null,
-  public_repos: 0,
-  followers: 0,
-  following: 0,
-  created_at: "2020-01-01T00:00:00Z",
-};
+function makeGitHubUser(login: string): GitHubUser {
+  return {
+    login,
+    id: 1,
+    name: null,
+    company: null,
+    blog: "",
+    location: null,
+    email: null,
+    bio: null,
+    public_repos: 0,
+    followers: 0,
+    following: 0,
+    created_at: "2020-01-01T00:00:00Z",
+  };
+}
+
+const milliornUser = makeGitHubUser("milliorn");
 
 afterEach(() => {
   globalThis.fetch = originalFetch;
@@ -63,7 +67,7 @@ describe("main", () => {
 
   it("fetches and prints user data for a given username", async () => {
     mockFetchOnce(
-      new Response(JSON.stringify({ login: "octocat" }), { status: 200 }),
+      new Response(JSON.stringify(makeGitHubUser("octocat")), { status: 200 }),
     );
     const output = await captureOutput(() => main(["octocat"]));
     expect(lastFetchUrl).toBe("https://api.github.com/users/octocat");
@@ -72,9 +76,7 @@ describe("main", () => {
   });
 
   it("defaults to the milliorn username when no argument is given", async () => {
-    mockFetchOnce(
-      new Response(JSON.stringify({ login: "milliorn" }), { status: 200 }),
-    );
+    mockFetchOnce(new Response(JSON.stringify(milliornUser), { status: 200 }));
     const output = await captureOutput(() => main([]));
     expect(lastFetchUrl).toBe("https://api.github.com/users/milliorn");
     expect(output).toMatch(/User data:/);
