@@ -8,7 +8,7 @@
     "start": "bun run server.ts",
     "watch": "bun --watch server.ts",
     "typecheck": "bun x tsc --noEmit",
-    "test": "bun test __tests__/**/*.test.ts",
+    "test": "bun test",
     "test:server": "bun test __tests__/server.test.ts"
   },
   "devDependencies": {
