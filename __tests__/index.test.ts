@@ -56,6 +56,16 @@ describe("main", () => {
     expect(output).toMatch(/octocat/);
   });
 
+  it("defaults to the milliorn username when no argument is given", async () => {
+    mockFetchOnce(
+      new Response(JSON.stringify({ login: "milliorn" }), { status: 200 }),
+    );
+    const output = await captureOutput(() => main([]));
+    expect(lastFetchUrl).toBe("https://api.github.com/users/milliorn");
+    expect(output).toMatch(/User data:/);
+    expect(output).toMatch(/milliorn/);
+  });
+
   it("prints an error when the fetch fails", async () => {
     mockFetchOnce(new Response(null, { status: 500, statusText: "Server Error" }));
     const output = await captureOutput(() => main(["milliorn"]));
