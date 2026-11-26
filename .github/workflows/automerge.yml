@@ -2,7 +2,7 @@ name: Dependabot reviewer
 
 # Fires whenever Dependabot opens, updates, or reopens a PR targeting main.
 # pull_request_target runs in the context of the base branch, which gives the
-# GITHUB_TOKEN enough permission to approve and merge without extra secrets.
+# GITHUB_TOKEN enough permission to merge without extra secrets.
 on:
   pull_request_target:
     types: [opened, synchronize, reopened]
@@ -15,8 +15,8 @@ concurrency:
   cancel-in-progress: false
 
 # Minimum permissions needed:
-# - pull-requests: approve and comment on PRs
-# - contents: enable auto-merge (writes to the merge queue)
+# - pull-requests: comment on and close PRs, enable auto-merge
+# - contents: perform the squash merge
 permissions:
   pull-requests: write
   contents: write
@@ -41,7 +41,7 @@ jobs:
         uses: dependabot/fetch-metadata@v3.1.0
 
       # Decide once: allow github_actions (any semver, majors on purpose) or
-      # npm patch/minor; deny everything else. npm majors are also ignored
+      # bun patch/minor; deny everything else. bun majors are also ignored
       # upstream in dependabot.yml, so deny is a safety net.
       - name: Decide
         id: decision
