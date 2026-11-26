@@ -28,7 +28,7 @@ dependencies:
   - changed-files:
       - any-glob-to-any-file:
           - "package.json"
-          - "bun.lockb"
+          - "bun.lock"
           - ".github/dependabot.yml"
 
 github_actions:
