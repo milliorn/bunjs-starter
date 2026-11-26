@@ -1,10 +1,7 @@
-name: "Dependency review"
+name: Dependency review
 
-# Run on every pull request targeting main.
-# Scans dependency manifest changes against GitHub's advisory database for known CVEs.
-# merge-gatekeeper waits for this check, so a vulnerable dependency blocks automerge
-# and manual merges, including Dependabot patch/minor PRs. There is no paths filter:
-# the action exits cleanly when no manifests changed.
+# merge-gatekeeper waits for this check, so a PR that adds a known vulnerability
+# can't merge. No paths filter: the action passes cleanly when no manifests change.
 on:
   pull_request:
     branches: ["main"]
@@ -21,8 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      # Fail if this PR introduces a known vulnerability at low severity or higher.
-      - name: Dependency Review
+      - name: Dependency review
         uses: actions/dependency-review-action@bbc44d14a204704ccc493733616cd1e93a0321ec # v5.0.1
         with:
           fail-on-severity: low
