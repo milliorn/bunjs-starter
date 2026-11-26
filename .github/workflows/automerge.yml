@@ -50,8 +50,9 @@ jobs:
           UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
         run: |
           if [[ "$ECOSYSTEM" == "github_actions" ]] || \
-             [[ "$UPDATE_TYPE" == "version-update:semver-patch" ]] || \
-             [[ "$UPDATE_TYPE" == "version-update:semver-minor" ]]; then
+             { [[ "$ECOSYSTEM" == "bun" ]] && \
+               { [[ "$UPDATE_TYPE" == "version-update:semver-patch" ]] || \
+                 [[ "$UPDATE_TYPE" == "version-update:semver-minor" ]]; }; }; then
             echo "action=allow" >> "$GITHUB_OUTPUT"
           else
             echo "action=deny" >> "$GITHUB_OUTPUT"
