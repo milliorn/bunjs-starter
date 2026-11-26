@@ -7,6 +7,8 @@ source:
   - changed-files:
       - any-glob-to-any-file:
           - "src/**"
+          - "readFile.ts"
+          - "writeFile.ts"
 
 tests:
   - changed-files:
@@ -22,7 +24,8 @@ configuration:
   - changed-files:
       - any-glob-to-any-file:
           - "tsconfig.json"
-          - "tsconfig.*.json"
+          - "bunfig.toml"
+          - ".gitignore"
 
 dependencies:
   - changed-files:
@@ -35,3 +38,4 @@ github_actions:
   - changed-files:
       - any-glob-to-any-file:
           - ".github/workflows/**"
+          - ".github/labeler.yml"
