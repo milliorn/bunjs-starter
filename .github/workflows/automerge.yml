@@ -38,7 +38,7 @@ jobs:
     steps:
       - name: Dependabot metadata
         id: metadata
-        uses: dependabot/fetch-metadata@v3.1.0
+        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
 
       # Decide once: allow github_actions (any semver, majors on purpose) or
       # bun/npm/yarn patch/minor; deny everything else. bun majors are also ignored
