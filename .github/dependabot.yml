@@ -7,11 +7,29 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+    cooldown:
+      default-days: 3
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    # One PR per ecosystem per run; replaces the rebase cascade, which never
+    # fired because GITHUB_TOKEN merges don't trigger workflows.
+    groups:
+      github-actions:
+        patterns: ["*"]
 
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "monthly"
+    cooldown:
+      default-days: 3
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    groups:
+      npm:
+        patterns: ["*"]
     ignore:
       - dependency-name: "*"
         update-types:
