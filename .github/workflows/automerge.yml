@@ -45,12 +45,13 @@ jobs:
       # upstream in dependabot.yml, so deny is a safety net.
       - name: Decide
         id: decision
+        env:
+          ECOSYSTEM: ${{ steps.metadata.outputs.package-ecosystem }}
+          UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
         run: |
-          ecosystem="${{ steps.metadata.outputs.package-ecosystem }}"
-          update_type="${{ steps.metadata.outputs.update-type }}"
-          if [[ "$ecosystem" == "github_actions" ]] || \
-             [[ "$update_type" == "version-update:semver-patch" ]] || \
-             [[ "$update_type" == "version-update:semver-minor" ]]; then
+          if [[ "$ECOSYSTEM" == "github_actions" ]] || \
+             [[ "$UPDATE_TYPE" == "version-update:semver-patch" ]] || \
+             [[ "$UPDATE_TYPE" == "version-update:semver-minor" ]]; then
             echo "action=allow" >> "$GITHUB_OUTPUT"
           else
             echo "action=deny" >> "$GITHUB_OUTPUT"
@@ -67,5 +68,8 @@ jobs:
 
       - name: Deny — unexpected update
         if: steps.decision.outputs.action == 'deny'
+        env:
+          ECOSYSTEM: ${{ steps.metadata.outputs.package-ecosystem }}
+          UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
         run: |
-          gh pr close "$PR_URL" --comment "Auto-closed: ecosystem \`${{ steps.metadata.outputs.package-ecosystem }}\` / update-type \`${{ steps.metadata.outputs.update-type }}\` did not match any allow-list rule. Check dependabot.yml if this is unexpected."
+          gh pr close "$PR_URL" --comment "Auto-closed: ecosystem \`$ECOSYSTEM\` / update-type \`$UPDATE_TYPE\` did not match any allow-list rule. Check dependabot.yml if this is unexpected."
