@@ -49,14 +49,15 @@ jobs:
           ECOSYSTEM: ${{ steps.metadata.outputs.package-ecosystem }}
           UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
         run: |
-          if [[ "$ECOSYSTEM" == "github_actions" ]] || \
-             { [[ "$ECOSYSTEM" == "bun" || "$ECOSYSTEM" == "npm_and_yarn" ]] && \
-               { [[ "$UPDATE_TYPE" == "version-update:semver-patch" ]] || \
-                 [[ "$UPDATE_TYPE" == "version-update:semver-minor" ]]; }; }; then
-            echo "action=allow" >> "$GITHUB_OUTPUT"
-          else
-            echo "action=deny" >> "$GITHUB_OUTPUT"
-          fi
+          action=deny
+          case "$ECOSYSTEM" in
+            github_actions) action=allow ;;
+            bun|npm_and_yarn)
+              case "$UPDATE_TYPE" in
+                version-update:semver-patch|version-update:semver-minor) action=allow ;;
+              esac ;;
+          esac
+          echo "action=$action" >> "$GITHUB_OUTPUT"
 
       # --auto queues the merge so all required branch protection checks must
       # pass first (e.g. dependency-review) before the merge goes through.
