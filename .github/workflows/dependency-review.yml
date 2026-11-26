@@ -4,40 +4,30 @@ name: "Dependency review"
 
 # Run on every pull request targeting main.
 # Scans dependency manifest changes against GitHub's advisory database for known CVEs.
-# When set as a required status check, this blocks automerge (and manual merges)
-# if a vulnerable dependency is introduced, including through Dependabot
-# patch/minor PRs. There is no paths filter: the action exits cleanly when no
-# manifests changed, which keeps the required status check satisfied for all PRs.
+# merge-gatekeeper waits for this check, so a vulnerable dependency blocks automerge
+# and manual merges, including Dependabot patch/minor PRs. There is no paths filter:
+# the action exits cleanly when no manifests changed.
 on:
   pull_request:
     branches: ["main"]
 
-# https://docs.github.com/en/enterprise-cloud@latest/code-security/supply-chain-security/understanding-your-software-supply-chain/using-the-dependency-submission-api
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 permissions:
   contents: read
-  # Required for comment-summary-in-pr to post results as a PR comment.
-  pull-requests: write
 
 jobs:
   dependency-review:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      # Check out the repository so the action can read the manifest files.
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 1
 
-      # Scan changed dependency files and fail if any known vulnerability
-      # at low severity or higher is introduced by this PR.
-      # Commonly enabled options, see https://github.com/actions/dependency-review-action#configuration-options for all available options.
+      # Fail if this PR introduces a known vulnerability at low severity or higher.
       - name: Dependency Review
         uses: actions/dependency-review-action@bbc44d14a204704ccc493733616cd1e93a0321ec # v5.0.1
         with:
-          comment-summary-in-pr: on-failure
           fail-on-severity: low
