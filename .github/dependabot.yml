@@ -12,13 +12,10 @@ updates:
     commit-message:
       prefix: "ci"
       include: "scope"
-    # Minor/patch updates are grouped into one PR per ecosystem; github-actions
-    # majors open their own PRs. Replaces the rebase cascade, which never fired
-    # because GITHUB_TOKEN merges don't trigger workflows.
+    # All updates, majors included, in one grouped PR.
     groups:
       github-actions:
         patterns: ["*"]
-        update-types: ["minor", "patch"]
 
   - package-ecosystem: "npm"
     directory: "/"
@@ -32,6 +29,8 @@ updates:
     groups:
       npm:
         patterns: ["*"]
+        update-types: ["minor", "patch"]
+    # npm majors are bumped by hand.
     ignore:
       - dependency-name: "*"
         update-types:
