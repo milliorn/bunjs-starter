@@ -3,16 +3,20 @@ name: Merge Gatekeeper
 
 on:
   pull_request:
-    branches:
-      - main
-      - master
+    branches: ["main"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  checks: read
+  statuses: read
 
 jobs:
   merge-gatekeeper:
     runs-on: ubuntu-latest
-    permissions:
-      checks: read
-      statuses: read
+    timeout-minutes: 15
     steps:
       - name: Run Merge Gatekeeper
         uses: upsidr/merge-gatekeeper@bcae4dd95601d7f4dec78eac18d17f372efbd7dd # v2.0.0
