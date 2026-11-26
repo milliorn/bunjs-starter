@@ -10,10 +10,11 @@ updates:
     cooldown:
       default-days: 3
     commit-message:
-      prefix: "chore"
+      prefix: "ci"
       include: "scope"
-    # One PR per ecosystem per run; replaces the rebase cascade, which never
-    # fired because GITHUB_TOKEN merges don't trigger workflows.
+    # Minor/patch updates are grouped into one PR per ecosystem; github-actions
+    # majors open their own PRs. Replaces the rebase cascade, which never fired
+    # because GITHUB_TOKEN merges don't trigger workflows.
     groups:
       github-actions:
         patterns: ["*"]
