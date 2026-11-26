@@ -114,7 +114,7 @@ After Bun is installed and you're in the project root, install dependencies with
 bun install
 ```
 
-This will install packages from `package.json` and generate `bun.lockb`.
+This will install packages from `package.json` and generate `bun.lock`.
 
 To add a dependency or dev-dependency use:
 
