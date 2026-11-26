@@ -2,6 +2,7 @@ documentation:
   - changed-files:
       - any-glob-to-any-file:
           - "**/*.md"
+          - "LICENSE"
 
 source:
   - changed-files:
@@ -9,6 +10,7 @@ source:
           - "src/**"
           - "readFile.ts"
           - "writeFile.ts"
+          - "writeFile.txt"
 
 tests:
   - changed-files:
@@ -23,9 +25,10 @@ server:
 configuration:
   - changed-files:
       - any-glob-to-any-file:
-          - "tsconfig.json"
+          - "tsconfig*.json"
           - "bunfig.toml"
           - ".gitignore"
+          - ".vscode/**"
 
 dependencies:
   - changed-files:
