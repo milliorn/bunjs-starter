@@ -1,74 +1,91 @@
 /// <reference types="bun-types" />
 
-import { describe, it, expect, beforeAll, afterAll } from "bun:test";
+import { afterEach, describe, expect, it, spyOn } from "bun:test";
+import { handleRequest, startServer } from "../server.ts";
+import { captureOutput } from "./helpers/captureOutput.ts";
 
-let server: ReturnType<typeof Bun.serve>;
-const TEST_PORT = 3002;
-const BASE_URL = `http://localhost:${TEST_PORT}`;
+type Server = ReturnType<typeof Bun.serve>;
 
-beforeAll(async () => {
-  // Start server for testing on a different port
-  server = Bun.serve({
-    port: TEST_PORT,
-    fetch(req) {
-      const url = new URL(req.url);
+const running: Server[] = [];
+const originalPort = process.env.PORT;
 
-      if (url.pathname === "/") {
-        return new Response("Hello World!", {
-          headers: { "content-type": "text/html; charset=utf-8" },
-        });
-      } else if (url.pathname === "/json") {
-        return new Response(JSON.stringify({ hello: "world" }), {
-          headers: { "content-type": "application/json; charset=utf-8" },
-        });
-      }
-
-      return new Response("Not Found", {
-        status: 404,
-        headers: { "content-type": "text/plain; charset=utf-8" },
-      });
-    },
-  });
-
-  // Give server time to start
-  await new Promise((resolve) => setTimeout(resolve, 100));
+afterEach(() => {
+  for (const server of running.splice(0)) server.stop(true);
+  if (originalPort === undefined) delete process.env.PORT;
+  else process.env.PORT = originalPort;
 });
 
-afterAll(() => {
-  server.stop();
-});
+function request(path: string, init?: RequestInit): Response {
+  return handleRequest(new Request(`http://localhost${path}`, init));
+}
 
-describe("server routes", () => {
+describe("handleRequest", () => {
   it("GET / returns Hello World with correct content-type", async () => {
-    const res = await fetch(`${BASE_URL}/`);
+    const res = request("/");
     expect(res.status).toBe(200);
     expect(res.headers.get("content-type")).toBe("text/html; charset=utf-8");
-    const text = await res.text();
-    expect(text).toBe("Hello World!");
+    expect(await res.text()).toBe("Hello World!");
   });
 
   it("GET /json returns JSON with correct content-type", async () => {
-    const res = await fetch(`${BASE_URL}/json`);
+    const res = request("/json");
     expect(res.status).toBe(200);
     expect(res.headers.get("content-type")).toBe(
       "application/json; charset=utf-8",
     );
-    const json = await res.json();
-    expect(json).toEqual({ hello: "world" });
+    expect(await res.json()).toEqual({ hello: "world" });
   });
 
   it("GET /unknown returns 404 with correct content-type", async () => {
-    const res = await fetch(`${BASE_URL}/unknown`);
+    const res = request("/unknown");
     expect(res.status).toBe(404);
     expect(res.headers.get("content-type")).toBe("text/plain; charset=utf-8");
-    const text = await res.text();
-    expect(text).toBe("Not Found");
+    expect(await res.text()).toBe("Not Found");
   });
 
   it("POST / returns Hello World (method-agnostic routing)", async () => {
-    const res = await fetch(`${BASE_URL}/`, { method: "POST" });
+    const res = request("/", { method: "POST" });
     expect(res.status).toBe(200);
-    const text = await res.text();
-    expect(text).toBe("Hello World!");
+    expect(await res.text()).toBe("Hello World!");
+  });
+});
+
+describe("startServer", () => {
+  it("serves requests on the given port and logs the address", async () => {
+    const output = await captureOutput(() => {
+      running.push(startServer(0));
+    });
+    const [server] = running;
+    expect(output).toContain("Hello via Bun!");
+    expect(output).toContain(`Listening on http://localhost:${server.port}`);
+
+    const res = await fetch(`http://localhost:${server.port}/json`);
+    expect(await res.json()).toEqual({ hello: "world" });
+  });
+
+  it("reads the port from the PORT env variable by default", async () => {
+    process.env.PORT = "0";
+    await captureOutput(() => {
+      running.push(startServer());
+    });
+    const [server] = running;
+    expect(server.port).toBeGreaterThan(0);
+  });
+
+  it("logs and exits with code 1 when the port is taken", async () => {
+    const blocker = Bun.serve({ port: 0, fetch: () => new Response() });
+    running.push(blocker);
+    const exitSpy = spyOn(process, "exit").mockImplementation(
+      (() => undefined) as never,
+    );
+    try {
+      const output = await captureOutput(() => {
+        startServer(blocker.port);
+      });
+      expect(output).toContain("Failed to start server");
+      expect(exitSpy).toHaveBeenCalledWith(1);
+    } finally {
+      exitSpy.mockRestore();
+    }
   });
 });
