@@ -372,6 +372,11 @@ You should see:
   1 passing (1ms)
 ```
 
+This project enforces 100% line and function coverage through `bunfig.toml`, so every `bun test` prints a coverage report and exits 1 if any file drops below 100%. Two things to know:
+
+- Runs filtered with `-t` usually fail the threshold, because the files they load are only partly exercised. Run a single test file instead, for example `bun test __tests__/cli.test.tsx`.
+- Bun only measures files that a test imports, so a new source file needs a test before it counts.
+
 ## Bundler Examples
 
 See [Bundler](https://bun.sh/docs/bundler) for more details.
