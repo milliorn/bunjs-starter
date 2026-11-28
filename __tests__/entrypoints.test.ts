@@ -68,7 +68,9 @@ describe("entry points run main when executed directly", () => {
       cwd: REPO_ROOT,
       env: { ...process.env, PORT: "0" },
       stdout: "pipe",
+      stderr: "pipe",
     });
+    const timer = setTimeout(() => proc.kill(), 3000);
     try {
       const reader = proc.stdout.getReader();
       const decoder = new TextDecoder();
@@ -79,10 +81,16 @@ describe("entry points run main when executed directly", () => {
         if (done) break;
         text += decoder.decode(value);
       }
-      expect(match?.[1]).toBeDefined();
-      const res = await fetch(new URL("/json", match?.[1]));
+      if (!match) {
+        const stderr = await new Response(proc.stderr).text();
+        throw new Error(
+          `server.ts never logged its address.\nstdout: ${text}\nstderr: ${stderr}`,
+        );
+      }
+      const res = await fetch(new URL("/json", match[1]));
       expect(await res.json()).toEqual({ hello: "world" });
     } finally {
+      clearTimeout(timer);
       proc.kill();
       await proc.exited;
     }
