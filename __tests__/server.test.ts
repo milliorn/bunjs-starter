@@ -1,6 +1,6 @@
 /// <reference types="bun-types" />
 
-import { afterEach, describe, expect, it, spyOn } from "bun:test";
+import { afterEach, beforeEach, describe, expect, it, spyOn } from "bun:test";
 import { handleRequest, startServer } from "../server.ts";
 import { captureOutput } from "./helpers/captureOutput.ts";
 
@@ -51,11 +51,24 @@ describe("handleRequest", () => {
 });
 
 describe("startServer", () => {
+  let exitSpy: ReturnType<typeof spyOn>;
+
+  beforeEach(() => {
+    exitSpy = spyOn(process, "exit").mockImplementation(
+      (() => undefined) as never,
+    );
+  });
+
+  afterEach(() => {
+    exitSpy.mockRestore();
+  });
+
   it("serves requests on the given port and logs the address", async () => {
     const output = await captureOutput(() => {
       const server = startServer(0);
       if (server) running.push(server);
     });
+    expect(exitSpy).not.toHaveBeenCalled();
     expect(running).toHaveLength(1);
     const [server] = running;
     expect(output).toContain("Hello via Bun!");
@@ -74,6 +87,7 @@ describe("startServer", () => {
       await captureOutput(() => {
         startServer();
       });
+      expect(exitSpy).not.toHaveBeenCalled();
       expect(serveSpy).toHaveBeenCalledTimes(1);
       expect(serveSpy.mock.calls[0]?.[0]).toMatchObject({ port: 4321 });
     } finally {
@@ -85,9 +99,6 @@ describe("startServer", () => {
     const serveSpy = spyOn(Bun, "serve").mockImplementation(() => {
       throw new Error("boom");
     });
-    const exitSpy = spyOn(process, "exit").mockImplementation(
-      (() => undefined) as never,
-    );
     try {
       const output = await captureOutput(() => {
         const server = startServer(3001);
@@ -96,7 +107,6 @@ describe("startServer", () => {
       expect(output).toContain("Failed to start server: Error: boom");
       expect(exitSpy).toHaveBeenCalledWith(1);
     } finally {
-      exitSpy.mockRestore();
       serveSpy.mockRestore();
     }
   });
