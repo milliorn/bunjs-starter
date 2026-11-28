@@ -17,7 +17,9 @@ export function handleRequest(req: Request): Response {
   });
 }
 
-export function startServer(port = parseInt(process.env.PORT || "3001")) {
+export function startServer(
+  port = parseInt(process.env.PORT || "3001"),
+): ReturnType<typeof Bun.serve> | undefined {
   console.log("Hello via Bun!");
 
   try {
