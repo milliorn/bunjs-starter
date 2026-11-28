@@ -41,6 +41,7 @@ __tests__/
   helpers/
     captureOutput.ts
   cli.test.tsx
+  entrypoints.test.ts
   index.test.ts
   random.test.ts
   readFile.test.ts
