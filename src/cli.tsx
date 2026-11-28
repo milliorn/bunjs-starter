@@ -42,6 +42,4 @@ export function main(args: string[] = process.argv.slice(2)) {
   console.log(`Your random number is ${value}`);
 }
 
-if (import.meta.main) {
-  main();
-}
+if (import.meta.main) main();
