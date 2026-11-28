@@ -1,48 +1,64 @@
 /// <reference types="bun-types" />
 
-import { afterEach, describe, expect, it, spyOn } from "bun:test";
+import { afterEach, beforeEach, describe, expect, it, spyOn } from "bun:test";
+import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { main, readTextFile } from "../readFile.ts";
 import { captureOutput } from "./helpers/captureOutput.ts";
 
-const TEST_FILE = join(tmpdir(), "bunjs-starter-readFile.test.txt");
+const REPO_ROOT = join(import.meta.dir, "..");
 
-afterEach(async () => {
-  const file = Bun.file(TEST_FILE);
-  if (await file.exists()) await file.delete();
+let dir: string;
+
+beforeEach(() => {
+  dir = mkdtempSync(join(tmpdir(), "bunjs-starter-readFile-"));
+});
+
+afterEach(() => {
+  rmSync(dir, { recursive: true, force: true });
 });
 
 describe("readTextFile", () => {
   it("reads writeFile.txt and outputs Hello World!", async () => {
-    const text = await readTextFile("writeFile.txt");
+    const text = await readTextFile(join(REPO_ROOT, "writeFile.txt"));
     expect(text.trim()).toBe("Hello World!");
   });
 
   it("errors gracefully for missing file", async () => {
-    await expect(readTextFile("missing.txt")).rejects.toThrow("does not exist");
+    await expect(readTextFile(join(dir, "missing.txt"))).rejects.toThrow(
+      "does not exist",
+    );
   });
 });
 
 describe("main", () => {
   it("prints writeFile.txt when no argument is given", async () => {
-    const output = await captureOutput(() => main([]));
-    expect(output.trim()).toBe("Hello World!");
+    const originalCwd = process.cwd();
+    process.chdir(REPO_ROOT);
+    try {
+      const output = await captureOutput(() => main([]));
+      expect(output.trim()).toBe("Hello World!");
+    } finally {
+      process.chdir(originalCwd);
+    }
   });
 
   it("prints the file given as the first argument", async () => {
-    await Bun.write(TEST_FILE, "Custom content");
-    const output = await captureOutput(() => main([TEST_FILE]));
+    const path = join(dir, "input.txt");
+    await Bun.write(path, "Custom content");
+    const output = await captureOutput(() => main([path]));
     expect(output.trim()).toBe("Custom content");
   });
 
   it("logs the error and exits with code 1 for a missing file", async () => {
+    const missing = join(dir, "missing.txt");
     const exitSpy = spyOn(process, "exit").mockImplementation(
       (() => undefined) as never,
     );
     try {
-      const output = await captureOutput(() => main(["missing.txt"]));
-      expect(output).toContain('File "missing.txt" does not exist.');
+      const output = await captureOutput(() => main([missing]));
+      expect(output).toContain(`File "${missing}" does not exist.`);
       expect(exitSpy).toHaveBeenCalledWith(1);
     } finally {
       exitSpy.mockRestore();
