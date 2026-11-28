@@ -47,4 +47,5 @@ export async function main(args: string[] = process.argv.slice(2)) {
   }
 }
 
+// One line on purpose so Bun counts it as covered; __tests__/entrypoints.test.ts runs it for real.
 if (import.meta.main) main();
