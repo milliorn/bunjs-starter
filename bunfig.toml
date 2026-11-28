@@ -1,2 +1,7 @@
 [install]
 exact = true
+
+[test]
+coverage = true
+coverageThreshold = 1.0
+coveragePathIgnorePatterns = ["__tests__/**"]
