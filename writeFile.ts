@@ -8,12 +8,11 @@ export async function writeTextFile(
   await Bun.write(filename, content);
 }
 
-// CLI usage
-if (import.meta.main) {
-  const filename = process.argv[2] || "scratchFile.txt";
-  const content = process.argv[3] || "Hello World!";
+export function main(args: string[] = process.argv.slice(2)): Promise<void> {
+  const filename = args[0] || "scratchFile.txt";
+  const content = args[1] || "Hello World!";
 
-  writeTextFile(filename, content)
+  return writeTextFile(filename, content)
     .then(() => {
       console.log(`File "${filename}" written successfully.`);
     })
@@ -22,3 +21,5 @@ if (import.meta.main) {
       process.exit(1);
     });
 }
+
+if (import.meta.main) main();

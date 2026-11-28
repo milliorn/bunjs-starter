@@ -47,6 +47,4 @@ export async function main(args: string[] = process.argv.slice(2)) {
   }
 }
 
-if (import.meta.main) {
-  main();
-}
+if (import.meta.main) main();

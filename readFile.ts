@@ -6,13 +6,14 @@ export async function readTextFile(filename: string): Promise<string> {
   return await readFile.text();
 }
 
-// CLI usage
-if (import.meta.main) {
-  const filename = process.argv[2] || "writeFile.txt";
-  readTextFile(filename)
+export function main(args: string[] = process.argv.slice(2)): Promise<void> {
+  const filename = args[0] || "writeFile.txt";
+  return readTextFile(filename)
     .then((text) => console.log(text))
     .catch((error) => {
       console.error(error.message);
       process.exit(1);
     });
 }
+
+if (import.meta.main) main();
