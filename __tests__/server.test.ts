@@ -77,20 +77,22 @@ describe("startServer", () => {
   });
 
   it("logs and exits with code 1 when the port is taken", async () => {
-    const blocker = Bun.serve({ port: 0, fetch: () => new Response() });
-    running.push(blocker);
+    const serveSpy = spyOn(Bun, "serve").mockImplementation(() => {
+      throw new Error("Failed to start server. Is port 3001 in use?");
+    });
     const exitSpy = spyOn(process, "exit").mockImplementation(
       (() => undefined) as never,
     );
     try {
       const output = await captureOutput(() => {
-        const server = startServer(blocker.port);
+        const server = startServer(3001);
         if (server) running.push(server);
       });
       expect(output).toContain("Failed to start server");
       expect(exitSpy).toHaveBeenCalledWith(1);
     } finally {
       exitSpy.mockRestore();
+      serveSpy.mockRestore();
     }
   });
 });
