@@ -1,6 +1,10 @@
-import { describe, it, expect, spyOn } from "bun:test";
+import { afterEach, describe, it, expect, mock, spyOn } from "bun:test";
 import { main } from "../src/cli.tsx";
 import { captureOutput } from "./helpers/captureOutput.ts";
+
+afterEach(() => {
+  mock.restore();
+});
 
 describe("cli.tsx", () => {
   it("prints a random number with no args", async () => {
@@ -45,13 +49,9 @@ describe("cli.tsx", () => {
   });
 
   it("uses the default max of 100 when only min is given", async () => {
-    const randomSpy = spyOn(Math, "random").mockReturnValue(0.9999999999);
-    try {
-      const output = await captureOutput(() => main(["5"]));
-      expect(output).toMatch(/Your random number is 100\b/);
-    } finally {
-      randomSpy.mockRestore();
-    }
+    spyOn(Math, "random").mockReturnValue(0.9999999999);
+    const output = await captureOutput(() => main(["5"]));
+    expect(output).toMatch(/Your random number is 100\b/);
   });
 
   it("prints min when min equals max", async () => {
