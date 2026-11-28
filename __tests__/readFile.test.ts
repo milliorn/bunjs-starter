@@ -1,6 +1,6 @@
 /// <reference types="bun-types" />
 
-import { afterEach, beforeEach, describe, expect, it, spyOn } from "bun:test";
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from "bun:test";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -16,6 +16,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  mock.restore();
   rmSync(dir, { recursive: true, force: true });
 });
 
@@ -56,12 +57,8 @@ describe("main", () => {
     const exitSpy = spyOn(process, "exit").mockImplementation(
       (() => undefined) as never,
     );
-    try {
-      const output = await captureOutput(() => main([missing]));
-      expect(output).toContain(`File "${missing}" does not exist.`);
-      expect(exitSpy).toHaveBeenCalledWith(1);
-    } finally {
-      exitSpy.mockRestore();
-    }
+    const output = await captureOutput(() => main([missing]));
+    expect(output).toContain(`File "${missing}" does not exist.`);
+    expect(exitSpy).toHaveBeenCalledWith(1);
   });
 });

@@ -1,6 +1,6 @@
 /// <reference types="bun-types" />
 
-import { afterEach, beforeEach, describe, expect, it, spyOn } from "bun:test";
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from "bun:test";
 import { handleRequest, startServer } from "../server.ts";
 import { captureOutput } from "./helpers/captureOutput.ts";
 
@@ -10,6 +10,7 @@ const running: Server[] = [];
 const originalPort = process.env.PORT;
 
 afterEach(async () => {
+  mock.restore();
   await Promise.all(running.splice(0).map((server) => server.stop(true)));
   if (originalPort === undefined) delete process.env.PORT;
   else process.env.PORT = originalPort;
@@ -59,10 +60,6 @@ describe("startServer", () => {
     );
   });
 
-  afterEach(() => {
-    exitSpy.mockRestore();
-  });
-
   it("serves requests on the given port and logs the address", async () => {
     const output = await captureOutput(() => {
       const server = startServer(0);
@@ -81,33 +78,25 @@ describe("startServer", () => {
   it("reads the port from the PORT env variable by default", async () => {
     process.env.PORT = "4321";
     const serveSpy = spyOn(Bun, "serve").mockImplementation(
-      () => ({ port: 4321 }) as ReturnType<typeof Bun.serve>,
+      () => ({ port: 4321 }) as Server,
     );
-    try {
-      await captureOutput(() => {
-        startServer();
-      });
-      expect(exitSpy).not.toHaveBeenCalled();
-      expect(serveSpy).toHaveBeenCalledTimes(1);
-      expect(serveSpy.mock.calls[0]?.[0]).toMatchObject({ port: 4321 });
-    } finally {
-      serveSpy.mockRestore();
-    }
+    await captureOutput(() => {
+      startServer();
+    });
+    expect(exitSpy).not.toHaveBeenCalled();
+    expect(serveSpy).toHaveBeenCalledTimes(1);
+    expect(serveSpy.mock.calls[0]?.[0]).toMatchObject({ port: 4321 });
   });
 
   it("logs and exits with code 1 when Bun.serve throws", async () => {
-    const serveSpy = spyOn(Bun, "serve").mockImplementation(() => {
+    spyOn(Bun, "serve").mockImplementation(() => {
       throw new Error("boom");
     });
-    try {
-      const output = await captureOutput(() => {
-        const server = startServer(3001);
-        if (server) running.push(server);
-      });
-      expect(output).toContain("Failed to start server: Error: boom");
-      expect(exitSpy).toHaveBeenCalledWith(1);
-    } finally {
-      serveSpy.mockRestore();
-    }
+    const output = await captureOutput(() => {
+      const server = startServer(3001);
+      if (server) running.push(server);
+    });
+    expect(output).toContain("Failed to start server: Error: boom");
+    expect(exitSpy).toHaveBeenCalledWith(1);
   });
 });
