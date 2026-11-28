@@ -37,4 +37,24 @@ describe("cli.tsx", () => {
     const output = await captureOutput(() => main(["10", "5"]));
     expect(output).toMatch(/min cannot be greater than max/);
   });
+
+  it("shows help with -h", async () => {
+    const output = await captureOutput(() => main(["-h"]));
+    expect(output).toMatch(/Usage:/);
+    expect(output).toMatch(/Arguments:/);
+  });
+
+  it("uses the default max of 100 when only min is given", async () => {
+    const output = await captureOutput(() => main(["5"]));
+    const match = output.match(/Your random number is (\d+)/);
+    expect(match).not.toBeNull();
+    const num = Number(match?.[1]);
+    expect(num).toBeGreaterThanOrEqual(5);
+    expect(num).toBeLessThanOrEqual(100);
+  });
+
+  it("prints min when min equals max", async () => {
+    const output = await captureOutput(() => main(["7", "7"]));
+    expect(output).toMatch(/Your random number is 7\b/);
+  });
 });

@@ -47,9 +47,12 @@ describe("fetchUser", () => {
 
   it("throws on a non-ok response", async () => {
     mockFetchOnce(new Response(null, { status: 404, statusText: "Not Found" }));
-    await expect(fetchUser("does-not-exist")).rejects.toThrow(
-      "GitHub API error: 404 Not Found",
-    );
+    const output = await captureOutput(async () => {
+      await expect(fetchUser("does-not-exist")).rejects.toThrow(
+        "GitHub API error: 404 Not Found",
+      );
+    });
+    expect(output).toMatch(/Error fetching user:/);
   });
 });
 
