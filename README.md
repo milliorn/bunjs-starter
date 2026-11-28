@@ -40,6 +40,7 @@ server.ts
 __tests__/
   helpers/
     captureOutput.ts
+    fs.ts
   cli.test.tsx
   entrypoints.test.ts
   index.test.ts
