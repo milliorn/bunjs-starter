@@ -9,8 +9,8 @@ type Server = ReturnType<typeof Bun.serve>;
 const running: Server[] = [];
 const originalPort = process.env.PORT;
 
-afterEach(() => {
-  for (const server of running.splice(0)) server.stop(true);
+afterEach(async () => {
+  await Promise.all(running.splice(0).map((server) => server.stop(true)));
   if (originalPort === undefined) delete process.env.PORT;
   else process.env.PORT = originalPort;
 });
