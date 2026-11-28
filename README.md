@@ -38,8 +38,11 @@ readFile.ts
 writeFile.ts
 server.ts
 __tests__/
+  helpers/
+    captureOutput.ts
   cli.test.tsx
   index.test.ts
+  random.test.ts
   readFile.test.ts
   server.test.ts
   writeFile.test.ts
