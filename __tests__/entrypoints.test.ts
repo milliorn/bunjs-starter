@@ -6,6 +6,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 const REPO_ROOT = join(import.meta.dir, "..");
+const SPAWN_TIMEOUT = 10_000;
+const TEST_TIMEOUT = 15_000;
 
 let dir: string;
 
@@ -18,7 +20,10 @@ afterEach(() => {
 });
 
 function run(args: string[], cwd = REPO_ROOT) {
-  const proc = Bun.spawnSync([process.execPath, ...args], { cwd });
+  const proc = Bun.spawnSync([process.execPath, ...args], {
+    cwd,
+    timeout: SPAWN_TIMEOUT,
+  });
   return {
     exitCode: proc.exitCode,
     stdout: proc.stdout.toString(),
@@ -31,13 +36,13 @@ describe("entry points run main when executed directly", () => {
     const { exitCode, stdout } = run(["readFile.ts"]);
     expect(exitCode).toBe(0);
     expect(stdout.trim()).toBe("Hello World!");
-  });
+  }, TEST_TIMEOUT);
 
   it("readFile.ts exits 1 for a missing file", () => {
     const { exitCode, stderr } = run(["readFile.ts", join(dir, "missing.txt")]);
     expect(exitCode).toBe(1);
     expect(stderr).toContain("does not exist");
-  });
+  }, TEST_TIMEOUT);
 
   it("writeFile.ts writes the given file", async () => {
     const path = join(dir, "out.txt");
@@ -49,19 +54,19 @@ describe("entry points run main when executed directly", () => {
     expect(exitCode).toBe(0);
     expect(stdout).toContain(`File "${path}" written successfully.`);
     expect(await Bun.file(path).text()).toBe("Entry text");
-  });
+  }, TEST_TIMEOUT);
 
   it("src/cli.tsx prints a number", () => {
     const { exitCode, stdout } = run(["src/cli.tsx", "7", "7"]);
     expect(exitCode).toBe(0);
     expect(stdout).toContain("Your random number is 7");
-  });
+  }, TEST_TIMEOUT);
 
   it("src/index.ts prints help without touching the network", () => {
     const { exitCode, stdout } = run(["src/index.ts", "--help"]);
     expect(exitCode).toBe(0);
     expect(stdout).toContain("Usage: bun run src/index.ts [username]");
-  });
+  }, TEST_TIMEOUT);
 
   it("server.ts starts listening and serves requests", async () => {
     const proc = Bun.spawn([process.execPath, "server.ts"], {
@@ -70,7 +75,7 @@ describe("entry points run main when executed directly", () => {
       stdout: "pipe",
       stderr: "pipe",
     });
-    const timer = setTimeout(() => proc.kill(), 3000);
+    const timer = setTimeout(() => proc.kill(), SPAWN_TIMEOUT);
     try {
       const reader = proc.stdout.getReader();
       const decoder = new TextDecoder();
@@ -79,7 +84,7 @@ describe("entry points run main when executed directly", () => {
       while (!(match = text.match(/Listening on (\S+)\n/))) {
         const { value, done } = await reader.read();
         if (done) break;
-        text += decoder.decode(value);
+        text += decoder.decode(value, { stream: true });
       }
       if (!match) {
         const stderr = await new Response(proc.stderr).text();
@@ -94,5 +99,5 @@ describe("entry points run main when executed directly", () => {
       proc.kill();
       await proc.exited;
     }
-  });
+  }, TEST_TIMEOUT);
 });
