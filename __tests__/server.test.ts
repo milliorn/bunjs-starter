@@ -53,8 +53,10 @@ describe("handleRequest", () => {
 describe("startServer", () => {
   it("serves requests on the given port and logs the address", async () => {
     const output = await captureOutput(() => {
-      running.push(startServer(0));
+      const server = startServer(0);
+      if (server) running.push(server);
     });
+    expect(running).toHaveLength(1);
     const [server] = running;
     expect(output).toContain("Hello via Bun!");
     expect(output).toContain(`Listening on http://localhost:${server.port}`);
@@ -66,8 +68,10 @@ describe("startServer", () => {
   it("reads the port from the PORT env variable by default", async () => {
     process.env.PORT = "0";
     await captureOutput(() => {
-      running.push(startServer());
+      const server = startServer();
+      if (server) running.push(server);
     });
+    expect(running).toHaveLength(1);
     const [server] = running;
     expect(server.port).toBeGreaterThan(0);
   });
@@ -80,7 +84,8 @@ describe("startServer", () => {
     );
     try {
       const output = await captureOutput(() => {
-        startServer(blocker.port);
+        const server = startServer(blocker.port);
+        if (server) running.push(server);
       });
       expect(output).toContain("Failed to start server");
       expect(exitSpy).toHaveBeenCalledWith(1);
