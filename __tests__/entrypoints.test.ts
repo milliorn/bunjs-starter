@@ -1,23 +1,13 @@
 /// <reference types="bun-types" />
 
-import { afterEach, beforeEach, describe, expect, it } from "bun:test";
-import { mkdtempSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { describe, expect, it } from "bun:test";
 import { join } from "node:path";
+import { REPO_ROOT, useTempDir } from "./helpers/fs.ts";
 
-const REPO_ROOT = join(import.meta.dir, "..");
 const SPAWN_TIMEOUT = 10_000;
 const TEST_TIMEOUT = 15_000;
 
-let dir: string;
-
-beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), "bunjs-starter-entry-"));
-});
-
-afterEach(() => {
-  rmSync(dir, { recursive: true, force: true });
-});
+const tempDir = useTempDir("entry");
 
 function run(args: string[], cwd = REPO_ROOT) {
   const proc = Bun.spawnSync([process.execPath, ...args], {
@@ -39,13 +29,13 @@ describe("entry points run main when executed directly", () => {
   }, TEST_TIMEOUT);
 
   it("readFile.ts exits 1 for a missing file", () => {
-    const { exitCode, stderr } = run(["readFile.ts", join(dir, "missing.txt")]);
+    const { exitCode, stderr } = run(["readFile.ts", join(tempDir(), "missing.txt")]);
     expect(exitCode).toBe(1);
     expect(stderr).toContain("does not exist");
   }, TEST_TIMEOUT);
 
   it("writeFile.ts writes the given file", async () => {
-    const path = join(dir, "out.txt");
+    const path = join(tempDir(), "out.txt");
     const { exitCode, stdout } = run([
       join(REPO_ROOT, "writeFile.ts"),
       path,

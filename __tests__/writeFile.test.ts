@@ -1,26 +1,20 @@
 /// <reference types="bun-types" />
 
-import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from "bun:test";
-import { mkdtempSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { afterEach, describe, expect, it, mock, spyOn } from "bun:test";
 import { join } from "node:path";
 import { main, writeTextFile } from "../writeFile.ts";
 import { captureOutput } from "./helpers/captureOutput.ts";
+import { useTempDir, withCwd } from "./helpers/fs.ts";
 
-let dir: string;
-
-beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), "bunjs-starter-writeFile-"));
-});
+const tempDir = useTempDir("writeFile");
 
 afterEach(() => {
   mock.restore();
-  rmSync(dir, { recursive: true, force: true });
 });
 
 describe("writeTextFile", () => {
   it("writes content to a file", async () => {
-    const path = join(dir, "output.txt");
+    const path = join(tempDir(), "output.txt");
     await writeTextFile(path, "Sample");
     const file = Bun.file(path);
     expect(await file.exists()).toBe(true);
@@ -34,7 +28,7 @@ describe("writeTextFile", () => {
   });
 
   it("throws error if content is missing", async () => {
-    await expect(writeTextFile(join(dir, "output.txt"), "")).rejects.toThrow(
+    await expect(writeTextFile(join(tempDir(), "output.txt"), "")).rejects.toThrow(
       "Content is required",
     );
   });
@@ -42,31 +36,25 @@ describe("writeTextFile", () => {
 
 describe("main", () => {
   it("writes the given filename and content and logs success", async () => {
-    const path = join(dir, "custom.txt");
+    const path = join(tempDir(), "custom.txt");
     const output = await captureOutput(() => main([path, "Custom text"]));
     expect(output).toContain(`File "${path}" written successfully.`);
     expect(await Bun.file(path).text()).toBe("Custom text");
   });
 
   it("writes Hello World! to scratchFile.txt when no arguments are given", async () => {
-    const originalCwd = process.cwd();
-    process.chdir(dir);
-    try {
-      const output = await captureOutput(() => main([]));
-      expect(output).toContain('File "scratchFile.txt" written successfully.');
-      expect(await Bun.file(join(dir, "scratchFile.txt")).text()).toBe(
-        "Hello World!",
-      );
-    } finally {
-      process.chdir(originalCwd);
-    }
+    const output = await withCwd(tempDir(), () => captureOutput(() => main([])));
+    expect(output).toContain('File "scratchFile.txt" written successfully.');
+    expect(await Bun.file(join(tempDir(), "scratchFile.txt")).text()).toBe(
+      "Hello World!",
+    );
   });
 
   it("logs the error and exits with code 1 when the write fails", async () => {
     const exitSpy = spyOn(process, "exit").mockImplementation(
       (() => undefined) as never,
     );
-    const output = await captureOutput(() => main([dir]));
+    const output = await captureOutput(() => main([tempDir()]));
     expect(output).toContain("Error writing file:");
     expect(exitSpy).toHaveBeenCalledWith(1);
   });
