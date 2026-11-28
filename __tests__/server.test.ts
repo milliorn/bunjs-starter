@@ -61,24 +61,29 @@ describe("startServer", () => {
     expect(output).toContain("Hello via Bun!");
     expect(output).toContain(`Listening on http://localhost:${server.port}`);
 
-    const res = await fetch(`http://localhost:${server.port}/json`);
+    const res = await fetch(new URL("/json", server.url));
     expect(await res.json()).toEqual({ hello: "world" });
   });
 
   it("reads the port from the PORT env variable by default", async () => {
-    process.env.PORT = "0";
-    await captureOutput(() => {
-      const server = startServer();
-      if (server) running.push(server);
-    });
-    expect(running).toHaveLength(1);
-    const [server] = running;
-    expect(server.port).toBeGreaterThan(0);
+    process.env.PORT = "4321";
+    const serveSpy = spyOn(Bun, "serve").mockImplementation(
+      () => ({ port: 4321 }) as ReturnType<typeof Bun.serve>,
+    );
+    try {
+      await captureOutput(() => {
+        startServer();
+      });
+      expect(serveSpy).toHaveBeenCalledTimes(1);
+      expect(serveSpy.mock.calls[0]?.[0]).toMatchObject({ port: 4321 });
+    } finally {
+      serveSpy.mockRestore();
+    }
   });
 
-  it("logs and exits with code 1 when the port is taken", async () => {
+  it("logs and exits with code 1 when Bun.serve throws", async () => {
     const serveSpy = spyOn(Bun, "serve").mockImplementation(() => {
-      throw new Error("Failed to start server. Is port 3001 in use?");
+      throw new Error("boom");
     });
     const exitSpy = spyOn(process, "exit").mockImplementation(
       (() => undefined) as never,
@@ -88,7 +93,7 @@ describe("startServer", () => {
         const server = startServer(3001);
         if (server) running.push(server);
       });
-      expect(output).toContain("Failed to start server");
+      expect(output).toContain("Failed to start server: Error: boom");
       expect(exitSpy).toHaveBeenCalledWith(1);
     } finally {
       exitSpy.mockRestore();
